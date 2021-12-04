@@ -1,0 +1,167 @@
+[gd_scene load_steps=15 format=2]
+
+[ext_resource path="res://scripts/state/menu/Menu.gd" type="Script" id=1]
+[ext_resource path="res://resources/textures/ui/menu/logo.png" type="Texture" id=2]
+[ext_resource path="res://scripts/display/wacky_text/WackyText.gd" type="Script" id=3]
+[ext_resource path="res://resources/fonts/chips-sans.tres" type="BitmapFont" id=4]
+[ext_resource path="res://scripts/display/wacky_text/WackyTextEffectResource.tres" type="RichTextEffect" id=5]
+
+[sub_resource type="AtlasTexture" id=4]
+atlas = ExtResource( 2 )
+region = Rect2( 0, 0, 258, 90 )
+
+[sub_resource type="AtlasTexture" id=5]
+atlas = ExtResource( 2 )
+region = Rect2( 258, 0, 258, 90 )
+
+[sub_resource type="AtlasTexture" id=6]
+atlas = ExtResource( 2 )
+region = Rect2( 516, 0, 258, 90 )
+
+[sub_resource type="SpriteFrames" id=7]
+animations = [ {
+"frames": [ SubResource( 4 ), SubResource( 5 ), SubResource( 6 ) ],
+"loop": true,
+"name": "default",
+"speed": 5.0
+} ]
+
+[sub_resource type="Animation" id=8]
+length = 1.15
+step = 0.02
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:rotation_degrees")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.9, 1.15 ),
+"transitions": PoolRealArray( 0.435, 1.5, 1 ),
+"update": 0,
+"values": [ -360.0, 6.6, 0.0 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath(".:scale")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.9 ),
+"transitions": PoolRealArray( 0.435, 1 ),
+"update": 0,
+"values": [ Vector2( 1e-05, 1e-05 ), Vector2( 1, 1 ) ]
+}
+
+[sub_resource type="Animation" id=12]
+resource_name = "exit"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath(".:scale")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.2, 0.5 ),
+"transitions": PoolRealArray( 0.5, 1.6245, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1.15, 1.15 ), Vector2( 1e-05, 1e-05 ) ]
+}
+
+[sub_resource type="Shader" id=9]
+code = "shader_type canvas_item;
+
+uniform vec2 shadow_offset;
+uniform float shadow_alpha : hint_range(0.0, 1.0);
+
+void fragment() {
+	vec4 col = texture(TEXTURE, UV);
+	vec4 col_sh = texture(TEXTURE, UV + shadow_offset);
+	
+	col_sh.rgb *= 0.0;
+	col_sh.a *= shadow_alpha;
+	
+	COLOR = mix(col_sh, col, col.a);
+}"
+
+[sub_resource type="ShaderMaterial" id=10]
+shader = SubResource( 9 )
+shader_param/shadow_offset = Vector2( 0.004, 0.009 )
+shader_param/shadow_alpha = 0.75
+
+[sub_resource type="ViewportTexture" id=11]
+viewport_path = NodePath("InterfaceViewport")
+
+[node name="Menu" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
+
+[node name="InterfaceViewport" type="Viewport" parent="."]
+size = Vector2( 640, 360 )
+transparent_bg = true
+usage = 0
+render_target_update_mode = 3
+
+[node name="Title" type="Control" parent="InterfaceViewport"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Logo" type="AnimatedSprite" parent="InterfaceViewport/Title"]
+position = Vector2( 319, 162 )
+frames = SubResource( 7 )
+frame = 2
+playing = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="InterfaceViewport/Title/Logo"]
+anims/enter = SubResource( 8 )
+anims/exit = SubResource( 12 )
+
+[node name="GreetingText" type="RichTextLabel" parent="InterfaceViewport/Title"]
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+margin_top = 27.0
+margin_bottom = 59.0
+rect_clip_content = false
+custom_fonts/normal_font = ExtResource( 4 )
+bbcode_enabled = true
+bbcode_text = "[center][wacky id=greeting_text][shake level=6 rate=2]Press any key to continue[/shake][/wacky][/center]"
+text = "Press any key to continue"
+fit_content_height = true
+scroll_active = false
+custom_effects = [ ExtResource( 5 ) ]
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+id = "greeting_text"
+wacky_text = "Press any key to continue"
+
+[node name="InterfaceRect" type="TextureRect" parent="."]
+material = SubResource( 10 )
+margin_right = 640.0
+margin_bottom = 360.0
+mouse_filter = 2
+texture = SubResource( 11 )
+flip_v = true
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Choices" type="Control" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_lock_": true,
+"_edit_use_anchors_": false
+}
